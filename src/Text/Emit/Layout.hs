@@ -1,4 +1,5 @@
 {-# LANGUAGE BlockArguments #-}
+{-# OPTIONS_HADDOCK show-extensions #-}
 
 module Text.Emit.Layout
   ( module Text.Emit.Layout.Monad,

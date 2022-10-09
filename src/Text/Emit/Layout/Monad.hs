@@ -1,6 +1,7 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE BangPatterns #-}
+{-# OPTIONS_HADDOCK show-extensions #-}
 
 module Text.Emit.Layout.Monad
   ( -- * TODO 

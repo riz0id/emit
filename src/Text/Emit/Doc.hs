@@ -1,28 +1,29 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# OPTIONS_HADDOCK show-extensions #-}
 
 module Text.Emit.Doc
-  ( -- * TODO
+  ( -- * Doc
     Doc (None, Line, Text, Join, Nest, Meta),
     sizeofDoc,
 
-    -- * TODO
+    -- * LineDoc
     LineDoc (LineDoc),
     sizeofLineDoc,
 
-    -- * TODO
+    -- * TextDoc
     TextDoc (TextDoc, size, contents),
     sizeofTextDoc,
 
-    -- * TODO
+    -- * JoinDoc
     JoinDoc (JoinDoc, size, docs),
     sizeofJoinDoc,
 
-    -- * TODO
+    -- * NestDoc
     NestDoc (NestDoc, tabs, doc),
     sizeofNestDoc,
 
-    -- * TODO
+    -- * MetaDoc
     MetaDoc (MetaDoc, meta, doc),
     sizeofMetaDoc,
   )
@@ -36,7 +37,7 @@ import Data.String (IsString, fromString)
 import Data.Text (Text)
 import Data.Text qualified as Text
 
---------------------------------------------------------------------------------
+-- Doc -------------------------------------------------------------------------
 
 -- | TODO
 --
@@ -106,7 +107,7 @@ sizeofDoc (Nest x) = sizeofNestDoc x
 sizeofDoc (Meta x) = sizeofMetaDoc x
 {-# INLINE sizeofDoc #-}
 
---------------------------------------------------------------------------------
+-- LineDoc ---------------------------------------------------------------------
 
 -- | TODO
 --
@@ -131,7 +132,7 @@ sizeofLineDoc :: LineDoc -> Int
 sizeofLineDoc (LineDoc n) = n
 {-# INLINE sizeofLineDoc #-}
 
---------------------------------------------------------------------------------
+-- TextDoc ---------------------------------------------------------------------
 
 -- | TODO
 --
@@ -159,7 +160,7 @@ sizeofTextDoc :: TextDoc -> Int
 sizeofTextDoc (TextDoc n _) = n
 {-# INLINE sizeofTextDoc #-}
 
---------------------------------------------------------------------------------
+-- JoinDoc ---------------------------------------------------------------------
 
 -- | TODO
 --
@@ -204,7 +205,7 @@ sizeofJoinDoc :: JoinDoc a -> Int
 sizeofJoinDoc (JoinDoc n _) = n
 {-# INLINE sizeofJoinDoc #-}
 
---------------------------------------------------------------------------------
+-- NestDoc ---------------------------------------------------------------------
 
 -- | TODO
 --
@@ -240,7 +241,7 @@ sizeofNestDoc :: NestDoc a -> Int
 sizeofNestDoc (NestDoc _ x) = sizeofDoc x
 {-# INLINE sizeofNestDoc #-}
 
---------------------------------------------------------------------------------
+-- MetaDoc ---------------------------------------------------------------------
 
 -- | TODO
 --

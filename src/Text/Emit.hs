@@ -1,5 +1,9 @@
+{-# OPTIONS_HADDOCK show-extensions #-}
+
 module Text.Emit
-  ( -- * TODO
+  ( module Text.Emit.Class,
+
+    -- * Primitives
     (<+>),
     (<!>),
     line,
@@ -7,24 +11,23 @@ module Text.Emit
     nest,
     metadata,
 
-    -- * TODO
-    csep,
+    -- * Concatenation
     hsep,
     vsep,
 
-    -- * TODO
+    -- * Enclosing
     paren,
     brace,
     brack,
   )
 where
 
-import Data.Foldable (foldr')
 import Data.Text (Text)
 import Data.Text qualified as Text
 
 --------------------------------------------------------------------------------
 
+import Text.Emit.Class
 import Text.Emit.Doc
   ( Doc (..),
     LineDoc (LineDoc),
@@ -33,7 +36,7 @@ import Text.Emit.Doc
     TextDoc (TextDoc),
   )
 
---------------------------------------------------------------------------------
+-- Primitives ------------------------------------------------------------------
 
 infixr 5 <+>, <!>
 
@@ -79,14 +82,7 @@ metadata :: Doc a -> a -> Doc a
 metadata x i = Meta (MetaDoc i x)
 {-# INLINE CONLIKE metadata #-}
 
---------------------------------------------------------------------------------
-
--- | TODO
---
--- @since 1.0.0
-csep :: [Doc a] -> Doc a
-csep = foldr' (<>) None
-{-# INLINE csep #-}
+-- Concatenation ---------------------------------------------------------------
 
 -- | TODO
 --
@@ -106,7 +102,7 @@ vsep [x] = x
 vsep (x : xs) = x <!> vsep xs
 {-# INLINE vsep #-}
 
---------------------------------------------------------------------------------
+-- Enclosing -------------------------------------------------------------------
 
 -- | TODO
 --
