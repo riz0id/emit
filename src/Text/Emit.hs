@@ -146,7 +146,7 @@ brace x = text (Text.pack "{") <> x <> text (Text.pack "}")
 --
 -- @since 1.0.0
 brack :: Doc a -> Doc a 
-brack x = text (Text.pack "{") <> x <> text (Text.pack "}")
+brack x = text (Text.pack "[") <> x <> text (Text.pack "]")
 {-# INLINE brack #-}
 
 --------------------------------------------------------------------------------
