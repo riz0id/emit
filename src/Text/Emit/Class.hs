@@ -26,12 +26,12 @@ class Emit a where
   -- | TODO
   --
   -- @since 1.0.0
-  emit :: a -> Doc ()
+  emit :: a -> Doc x
 
   -- | TODO
   --
   -- @since 1.0.0
-  emitList :: [a] -> Doc ()
+  emitList :: [a] -> Doc x
   emitList [] = None
   emitList (x : xs) = "[" <> emit x <> foldr' (\y ys -> ", " <> emit y <> ys) "]" xs
   {-# INLINE emitList #-}
