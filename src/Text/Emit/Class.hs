@@ -39,6 +39,14 @@ class Emit a where
   {-# MINIMAL emit #-}
 
 -- | @since 1.0.0
+instance Emit Int where
+  emit n = 
+    let text :: Text 
+        text = Text.pack (show n)
+     in Text (TextDoc (Text.length text) text)
+  {-# INLINE emit #-}
+
+-- | @since 1.0.0
 instance Emit String where
   emit str =
     let text :: Text
