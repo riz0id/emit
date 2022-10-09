@@ -16,9 +16,10 @@ module Text.Emit
     vsep,
 
     -- * Enclosing
-    paren,
-    brace,
-    brack,
+    parens,
+    braces,
+    bracks,
+    angles,
   )
 where
 
@@ -107,20 +108,26 @@ vsep (x : xs) = x <!> vsep xs
 -- | TODO
 --
 -- @since 1.0.0
-paren :: Doc a -> Doc a
-paren x = text (Text.pack "(") <> x <> text (Text.pack ")")
-{-# INLINE CONLIKE paren #-}
+parens :: Doc a -> Doc a
+parens x = text (Text.pack "(") <> x <> text (Text.pack ")")
+{-# INLINE CONLIKE parens #-}
 
 -- | TODO
 --
 -- @since 1.0.0
-brace :: Doc a -> Doc a
-brace x = text (Text.pack "{") <> x <> text (Text.pack "}")
-{-# INLINE CONLIKE brace #-}
+braces :: Doc a -> Doc a
+braces x = text (Text.pack "{") <> x <> text (Text.pack "}")
+{-# INLINE CONLIKE braces #-}
 
 -- | TODO
 --
 -- @since 1.0.0
-brack :: Doc a -> Doc a
-brack x = text (Text.pack "[") <> x <> text (Text.pack "]")
-{-# INLINE CONLIKE brack #-}
+bracks :: Doc a -> Doc a
+bracks x = text (Text.pack "[") <> x <> text (Text.pack "]")
+{-# INLINE CONLIKE bracks #-}
+
+-- | TODO
+--
+-- @since 1.0.0
+angles :: Doc a -> Doc a 
+angles x = text (Text.pack "<") <> x <> text (Text.pack ">")
