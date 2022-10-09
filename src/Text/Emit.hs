@@ -32,8 +32,11 @@ module Text.Emit
 
     -- * TODO
     (<+>),
+    (<!>),
     line,
+    csep,
     hsep,
+    vsep,
     text,
     nest,
     metadata,
@@ -295,7 +298,7 @@ sizeofMetaDoc (MetaDoc _ x) = sizeofDoc x
 
 --------------------------------------------------------------------------------
 
-infixr 5 <+>
+infixr 5 <+>, <!>
 
 -- | TODO
 --
@@ -307,9 +310,23 @@ infixr 5 <+>
 -- | TODO
 --
 -- @since 1.0.0
+(<!>) :: Doc a -> Doc a -> Doc a 
+(<!>) x y = x <> line <> y
+{-# INLINE CONLIKE (<!>) #-}
+
+-- | TODO
+--
+-- @since 1.0.0
 line :: Doc a
 line = Line (LineDoc 1)
 {-# INLINE CONLIKE line #-}
+
+-- | TODO
+--
+-- @since 1.0.0
+csep :: [Doc a] -> Doc a 
+csep = foldr' (<>) None
+{-# INLINE csep #-}
 
 -- | TODO
 --
@@ -319,6 +336,15 @@ hsep [] = None
 hsep [x] = x
 hsep (x : xs) = x <+> hsep xs
 {-# INLINE hsep #-}
+
+-- | TODO
+--
+-- @since 1.0.0
+vsep :: [Doc a] -> Doc a 
+vsep [] = None
+vsep [x] = x
+vsep (x : xs) = x <!> vsep xs
+{-# INLINE vsep #-}
 
 -- | TODO
 --
