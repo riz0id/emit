@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# OPTIONS_HADDOCK show-extensions #-}
 
@@ -8,7 +9,7 @@ module Text.Emit.Class
   )
 where
 
-import Data.Foldable (foldl')
+import Data.Foldable (foldr')
 import Data.Text (Text)
 import Data.Text qualified as Text
 
@@ -32,10 +33,7 @@ class Emit a where
   -- @since 1.0.0
   emitList :: [a] -> Doc ()
   emitList [] = None
-  emitList (x : xs) =
-    Text (TextDoc 1 (Text.pack "["))
-      <> emit x
-      <> foldl' (\ys y -> ys <> Text (TextDoc 2 (Text.pack ", ")) <> emit y) (Text (TextDoc 1 (Text.pack "]"))) xs
+  emitList (x : xs) = "[" <> emit x <> foldr' (\y ys -> ", " <> emit y <> ys) "]" xs
   {-# INLINE emitList #-}
 
   {-# MINIMAL emit #-}

@@ -77,8 +77,7 @@ runLayoutLineDoc :: LineDoc -> Layout ()
 runLayoutLineDoc (LineDoc count) =
   when (0 < count) do
     i <- ask
-    tell (Text.replicate count (Text.pack "\n"))
-    tell (Text.replicate i (Text.pack " "))
+    tell (Text.replicate count (Text.pack "\n") <> Text.replicate i (Text.pack " "))
 {-# INLINE runLayoutLineDoc #-}
 
 -- | TODO
@@ -99,7 +98,11 @@ runLayoutJoinDoc (JoinDoc _ xs) = traverse_ runLayoutDoc xs
 --
 -- @since 1.0.0
 runLayoutNestDoc :: NestDoc a -> Layout ()
-runLayoutNestDoc (NestDoc i x) = local (+ i) (runLayoutDoc x)
+runLayoutNestDoc (NestDoc i x) = do 
+  local (+ i) do 
+    tabs <- ask
+    tell (Text.cons '\n' (Text.replicate tabs (Text.pack " ")))
+    runLayoutDoc x
 {-# INLINE runLayoutNestDoc #-}
 
 -- | TODO

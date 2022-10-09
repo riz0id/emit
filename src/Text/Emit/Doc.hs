@@ -65,6 +65,7 @@ instance Semigroup (Doc a) where
   None <> ys = ys
   xs <> None = xs
   Line x <> Line y = Line (x <> y)
+  Text x <> Text y = Text (x <> y)
   Join x <> Join y = Join (x <> y)
   x <> y = runST do
     mut <- Array.newArray 2 None
