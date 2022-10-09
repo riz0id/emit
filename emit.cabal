@@ -83,3 +83,5 @@ library
   exposed-modules:
     Text.Emit
     Text.Emit.Doc
+    Text.Emit.Layout
+    Text.Emit.Layout.Monad

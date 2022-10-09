@@ -40,15 +40,18 @@ module Text.Emit
   )
 where
 
-import Control.Monad.Reader (MonadReader, ask, local)
+import Control.Monad.Reader (ask, local)
 
 import Data.Text (Text)
 import Data.Text qualified as Text
-import Data.Foldable (foldr')
+import Data.Foldable (foldr', traverse_)
 
 --------------------------------------------------------------------------------
 
 import Text.Emit.Doc
+import Text.Emit.Layout
+import Control.Monad.Writer (tell)
+import Control.Monad (when)
 
 --------------------------------------------------------------------------------
 
@@ -158,56 +161,8 @@ layout x = evalLayout (runLayoutDoc x)
 -- | TODO
 --
 -- @since 1.0.0
-runLayout :: Int -> Layout a -> a 
-runLayout i (Layout k) = k i
-{-# INLINE runLayout #-}
-
--- | TODO
---
--- @since 1.0.0
-evalLayout :: Layout a -> a 
-evalLayout = runLayout 0
-{-# INLINE evalLayout #-}
-
--- | TODO
---
--- @since 1.0.0
-newtype Layout a = Layout
-  {unLayout :: Int -> a}
-
--- | @since 1.0.0
-instance Functor Layout where
-  fmap f (Layout k) = Layout (f . k)
-  {-# INLINE fmap #-}
-
--- | @since 1.0.0
-instance Applicative Layout where
-  pure x = Layout \_ -> x
-  {-# INLINE pure #-}
-
-  Layout f <*> Layout g = Layout \i -> (f i) (g i)
-  {-# INLINE (<*>) #-}
-
--- | @since 1.0.0
-instance Monad Layout where
-  Layout k >>= f = Layout \i -> unLayout (f (k i)) i
-  {-# INLINE (>>=) #-}
-
--- | @since 1.0.0
-instance MonadReader Int Layout where
-  ask = Layout id
-  {-# INLINE ask #-}
-
-  local f (Layout k) = Layout (k . f)
-  {-# INLINE local #-}
-
---------------------------------------------------------------------------------
-
--- | TODO
---
--- @since 1.0.0
-runLayoutDoc :: Doc a -> Layout Text
-runLayoutDoc None = pure Text.empty
+runLayoutDoc :: Doc a -> Layout ()
+runLayoutDoc None = pure () 
 runLayoutDoc (Line x) = runLayoutLineDoc x
 runLayoutDoc (Text x) = runLayoutTextDoc x
 runLayoutDoc (Join x) = runLayoutJoinDoc x
@@ -218,40 +173,38 @@ runLayoutDoc (Meta x) = runLayoutMetaDoc x
 -- | TODO
 --
 -- @since 1.0.0
-runLayoutLineDoc :: LineDoc -> Layout Text
-runLayoutLineDoc (LineDoc count)
-  | count < 1 = pure Text.empty
-  | otherwise = do 
+runLayoutLineDoc :: LineDoc -> Layout ()
+runLayoutLineDoc (LineDoc count) = 
+  when (0 < count) do 
     i <- ask
-    pure (Text.replicate count (Text.pack "\n") <> Text.replicate i (Text.pack " "))
+    tell (Text.replicate count (Text.pack "\n"))
+    tell (Text.replicate i (Text.pack " "))
 {-# INLINE runLayoutLineDoc #-}
 
 -- | TODO
 --
 -- @since 1.0.0
-runLayoutTextDoc :: TextDoc -> Layout Text
-runLayoutTextDoc (TextDoc _ xs) = pure xs
+runLayoutTextDoc :: TextDoc -> Layout ()
+runLayoutTextDoc (TextDoc _ xs) = tell xs
 {-# INLINE runLayoutTextDoc #-}
 
 -- | TODO
 --
 -- @since 1.0.0
-runLayoutJoinDoc :: JoinDoc a -> Layout Text
-runLayoutJoinDoc (JoinDoc _ xs) = do 
-  texts <- traverse runLayoutDoc xs
-  pure (foldr' (<>) Text.empty texts)
+runLayoutJoinDoc :: JoinDoc a -> Layout ()
+runLayoutJoinDoc (JoinDoc _ xs) = traverse_ runLayoutDoc xs
 {-# INLINE runLayoutJoinDoc #-}
 
 -- | TODO
 --
 -- @since 1.0.0
-runLayoutNestDoc :: NestDoc a -> Layout Text
+runLayoutNestDoc :: NestDoc a -> Layout ()
 runLayoutNestDoc (NestDoc i x) = local (+ i) (runLayoutDoc x) 
 {-# INLINE runLayoutNestDoc #-}
 
 -- | TODO
 --
 -- @since 1.0.0
-runLayoutMetaDoc :: MetaDoc a -> Layout Text
+runLayoutMetaDoc :: MetaDoc a -> Layout ()
 runLayoutMetaDoc (MetaDoc _ x) = runLayoutDoc x
 {-# INLINE runLayoutMetaDoc #-}
