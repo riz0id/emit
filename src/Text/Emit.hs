@@ -3,8 +3,9 @@
 module Text.Emit
   ( module Text.Emit.Class,
 
-    -- * Doc 
+    -- * Doc
     Doc,
+    layout,
 
     -- * Primitives
     (<+>),
@@ -39,6 +40,7 @@ import Text.Emit.Doc
     NestDoc (NestDoc),
     TextDoc (TextDoc),
   )
+import Text.Emit.Layout (layout)
 
 -- Primitives ------------------------------------------------------------------
 
@@ -132,5 +134,5 @@ bracks x = text (Text.pack "[") <> x <> text (Text.pack "]")
 -- | TODO
 --
 -- @since 1.0.0
-angles :: Doc a -> Doc a 
+angles :: Doc a -> Doc a
 angles x = text (Text.pack "<") <> x <> text (Text.pack ">")
