@@ -42,6 +42,11 @@ module Text.Emit
     metadata,
 
     -- * TODO
+    paren,
+    brace,
+    brack,
+
+    -- * TODO
     Layout (Layout, unLayout),
     layout,
     runLayout,
@@ -366,6 +371,29 @@ nest n x = Nest (NestDoc n x)
 metadata :: Doc a -> a -> Doc a
 metadata x i = Meta (MetaDoc i x)
 {-# INLINE CONLIKE metadata #-}
+
+--------------------------------------------------------------------------------
+
+-- | TODO
+--
+-- @since 1.0.0
+paren :: Doc a -> Doc a 
+paren x = text (Text.pack "(") <> x <> text (Text.pack ")")
+{-# INLINE paren #-}
+
+-- | TODO
+--
+-- @since 1.0.0
+brace :: Doc a -> Doc a 
+brace x = text (Text.pack "{") <> x <> text (Text.pack "}")
+{-# INLINE brace #-}
+
+-- | TODO
+--
+-- @since 1.0.0
+brack :: Doc a -> Doc a 
+brack x = text (Text.pack "{") <> x <> text (Text.pack "}")
+{-# INLINE brack #-}
 
 --------------------------------------------------------------------------------
 
