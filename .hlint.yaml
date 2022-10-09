@@ -1,0 +1,84 @@
+- arguments: [
+  --color, 
+  -XMagicHash,
+  -XUnboxedTuples,
+  -XUnliftedNewtypes,
+  -XViewPatterns,
+]
+
+- extensions:
+  - default: true
+  - name: [
+      ImportQualifiedPost, 
+      MagicHash,
+      PatternSynonyms, 
+      TemplateHaskellQuotes,
+      UnliftedNewtypes
+      UnboxedTuples,
+      ViewPatterns,
+    ]
+
+# ==============================================================================
+# hints for the "ghc-prim" package
+
+- package: 
+    name: ghc-prim
+    modules:
+    - import GHC.CString
+    - import GHC.Classes
+    - import GHC.Debug
+    - import GHC.Magic
+    - import GHC.Magic.Dict
+    - import GHC.Prim.Exception
+    - import GHC.Prim.Ext
+    - import GHC.Prim.Panic
+    - import GHC.Prim.PtrEq
+    - import GHC.PrimWrappers
+    - import GHC.Tuple
+    - import GHC.Type
+
+# ==============================================================================
+# hints for the "source-locations" package
+
+- package: 
+    name: source-locations
+    modules: 
+    - import Data.SrcLoc
+    - import Data.SrcLoc.Prim
+
+- group:
+    name: source-location hints
+    enabled: true
+
+    imports:
+    - package source-locations
+
+    rules: 
+    - warn: {
+      name: "Use Data.SrcLoc.diff",
+      lhs: posn y - posn x,
+      rhs: diff x y,
+    }
+    - warn: {
+      name: "Use Data.SrcLoc.Prim.diff#",
+      lhs: posn# y - posn# x,
+      rhs: diff# x y,
+    }
+    - warn: {
+      name: "Use Data.SrcLoc.empty",
+      lhs: SrcLoc 0 1 1,
+      rhs: empty,
+    }
+
+# ==============================================================================
+# hlint configuration
+
+- modules:
+  - {name: GHC.Classes, as: GHC, message: "Error: qualify GHC.Exts as GHC"} 
+  - {name: GHC.Exts,    as: GHC, message: "Error: qualify GHC.Exts as GHC"} 
+
+  - {name: GHC.Magic, within: [], message: "Error: use GHC.Exts"} 
+  - {name: GHC.Prim,  within: [], message: "Error: use GHC.Exts"} 
+
+- functions: 
+  - {name: unsafeCoerce#, within: [], message: "unsafeCoerce# is highly unsafe"}

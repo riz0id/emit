@@ -1,0 +1,11 @@
+cradle:
+  cabal:
+    - path: "./src"
+      component: "lib:emit"
+    - path: "./test"
+      component: "test:test" 
+
+dependencies:
+  - emit.cabal
+  - default.nix
+  - shell.nix

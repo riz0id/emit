@@ -1,0 +1,3 @@
+
+-- Compile GHCi modules to object code.
+:set -fobject-code
