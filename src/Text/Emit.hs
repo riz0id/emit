@@ -31,6 +31,7 @@ module Text.Emit
     sizeofMetaDoc,
 
     -- * TODO
+    (<+>),
     line,
     text,
     nest,
@@ -293,12 +294,21 @@ sizeofMetaDoc (MetaDoc _ x) = sizeofDoc x
 
 --------------------------------------------------------------------------------
 
+infixr 5 <+>
+
+-- | TODO
+--
+-- @since 1.0.0
+(<+>) :: Doc a -> Doc a -> Doc a 
+(<+>) x y = x <> text (Text.pack " ") <> y
+{-# INLINE CONLIKE (<+>) #-}
+
 -- | TODO
 --
 -- @since 1.0.0
 line :: Doc a
 line = Line (LineDoc 1)
-{-# INLINE line #-}
+{-# INLINE CONLIKE line #-}
 
 -- | TODO
 --
