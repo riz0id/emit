@@ -33,6 +33,7 @@ module Text.Emit
     -- * TODO
     (<+>),
     line,
+    hsep,
     text,
     nest,
     metadata,
@@ -309,6 +310,15 @@ infixr 5 <+>
 line :: Doc a
 line = Line (LineDoc 1)
 {-# INLINE CONLIKE line #-}
+
+-- | TODO
+--
+-- @since 1.0.0
+hsep :: [Doc a] -> Doc a 
+hsep [] = None
+hsep [x] = x
+hsep (x : xs) = x <+> hsep xs
+{-# INLINE hsep #-}
 
 -- | TODO
 --
