@@ -34,12 +34,14 @@ module Text.Emit
     (<+>),
     (<!>),
     line,
-    csep,
-    hsep,
-    vsep,
     text,
     nest,
     metadata,
+
+    -- * TODO
+    csep,
+    hsep,
+    vsep,
 
     -- * TODO
     paren,
@@ -329,6 +331,29 @@ line = Line (LineDoc 1)
 -- | TODO
 --
 -- @since 1.0.0
+text :: Text -> Doc a
+text x = Text (TextDoc (Text.length x) x)
+{-# INLINE CONLIKE text #-}
+
+-- | TODO
+--
+-- @since 1.0.0
+nest :: Int -> Doc a -> Doc a
+nest n x = Nest (NestDoc n x)
+{-# INLINE CONLIKE nest #-}
+
+-- | TODO
+--
+-- @since 1.0.0
+metadata :: Doc a -> a -> Doc a
+metadata x i = Meta (MetaDoc i x)
+{-# INLINE CONLIKE metadata #-}
+
+--------------------------------------------------------------------------------
+
+-- | TODO
+--
+-- @since 1.0.0
 csep :: [Doc a] -> Doc a 
 csep = foldr' (<>) None
 {-# INLINE csep #-}
@@ -350,27 +375,6 @@ vsep [] = None
 vsep [x] = x
 vsep (x : xs) = x <!> vsep xs
 {-# INLINE vsep #-}
-
--- | TODO
---
--- @since 1.0.0
-text :: Text -> Doc a
-text x = Text (TextDoc (Text.length x) x)
-{-# INLINE CONLIKE text #-}
-
--- | TODO
---
--- @since 1.0.0
-nest :: Int -> Doc a -> Doc a
-nest n x = Nest (NestDoc n x)
-{-# INLINE CONLIKE nest #-}
-
--- | TODO
---
--- @since 1.0.0
-metadata :: Doc a -> a -> Doc a
-metadata x i = Meta (MetaDoc i x)
-{-# INLINE CONLIKE metadata #-}
 
 --------------------------------------------------------------------------------
 
