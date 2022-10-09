@@ -3,6 +3,9 @@
 module Text.Emit
   ( module Text.Emit.Class,
 
+    -- * Doc 
+    Doc,
+
     -- * Primitives
     (<+>),
     (<!>),
