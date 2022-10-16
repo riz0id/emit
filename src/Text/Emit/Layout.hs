@@ -11,7 +11,7 @@ module Text.Emit.Layout
     evalLayout,
 
     -- * Traversal
-    traverseMetadata
+    traverseMetadata,
   )
 where
 
@@ -20,6 +20,7 @@ import Control.Monad.Reader (ask, local)
 import Control.Monad.Writer (tell)
 
 import Data.Foldable (traverse_)
+import Data.Primitive.Array (Array)
 import Data.Text (Text)
 import Data.Text qualified as Text
 
@@ -32,6 +33,7 @@ import Text.Emit.Doc
     MetaDoc (MetaDoc),
     NestDoc (NestDoc),
     TextDoc (TextDoc),
+    sizeofDoc,
   )
 import Text.Emit.Layout.Monad
 
@@ -69,9 +71,13 @@ traverseMetadata :: Applicative f => (a -> Doc a -> f (Doc a)) -> Doc a -> f (Do
 traverseMetadata _ None = pure None
 traverseMetadata _ (Line x) = pure (Line x)
 traverseMetadata _ (Text x) = pure (Text x)
-traverseMetadata k (Join (JoinDoc size docs)) = fmap (Join . JoinDoc size) (traverse (traverseMetadata k) docs)
+traverseMetadata k (Join (JoinDoc _ docs)) =
+  fmap (Join . rebuild) (traverse (traverseMetadata k) docs)
+  where
+    rebuild :: Array (Doc a) -> JoinDoc a
+    rebuild xs = JoinDoc (foldr ((+) . sizeofDoc) 0 xs) xs
 traverseMetadata k (Nest (NestDoc tabs doc)) = fmap (Nest . NestDoc tabs) (traverseMetadata k doc)
-traverseMetadata k (Meta (MetaDoc meta doc)) = k meta doc 
+traverseMetadata k (Meta (MetaDoc meta doc)) = k meta doc
 
 --------------------------------------------------------------------------------
 
@@ -115,8 +121,8 @@ runLayoutJoinDoc (JoinDoc _ xs) = traverse_ runLayoutDoc xs
 --
 -- @since 1.0.0
 runLayoutNestDoc :: NestDoc a -> Layout ()
-runLayoutNestDoc (NestDoc i x) = do 
-  local (+ i) do 
+runLayoutNestDoc (NestDoc i x) = do
+  local (+ i) do
     tabs <- ask
     tell (Text.cons '\n' (Text.replicate tabs (Text.pack " ")))
     runLayoutDoc x
