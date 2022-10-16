@@ -1,3 +1,4 @@
+{-# LANGUAGE BlockArguments #-}
 {-# OPTIONS_HADDOCK show-extensions #-}
 
 module Text.Emit
@@ -7,8 +8,8 @@ module Text.Emit
     Doc,
     layout,
 
-    -- * Traversal 
-    traverseMetadata, 
+    -- * Traversal
+    traverseMetadata,
 
     -- * Query
     length,
@@ -20,6 +21,9 @@ module Text.Emit
     text,
     nest,
     metadata,
+
+    -- * Generation
+    repeat, 
 
     -- * Concatenation
     hsep,
@@ -33,18 +37,26 @@ module Text.Emit
   )
 where
 
+import Control.Monad.ST (runST)
+
+import Data.Foldable (for_)
+import Data.Primitive.Array qualified as Array
 import Data.Text (Text)
 import Data.Text qualified as Text
+
+import Prelude hiding (repeat)
 
 --------------------------------------------------------------------------------
 
 import Text.Emit.Class
 import Text.Emit.Doc
-  ( Doc (Line, Nest, None, Text, Meta),
+  ( Doc (Join, Line, Meta, Nest, None, Text),
+    JoinDoc (JoinDoc),
     LineDoc (LineDoc),
     MetaDoc (MetaDoc),
     NestDoc (NestDoc),
     TextDoc (TextDoc),
+    sizeofDoc,
   )
 import Text.Emit.Layout (layout, traverseMetadata)
 
@@ -94,6 +106,29 @@ metadata :: Doc a -> a -> Doc a
 metadata x i = Meta (MetaDoc i x)
 {-# INLINE CONLIKE metadata #-}
 
+-- Generation ------------------------------------------------------------------
+
+-- | TODO
+--
+-- @since 1.0.0
+repeat :: Int -> Doc a -> Doc a
+repeat _ None = None
+repeat n (Text (TextDoc len txt)) = 
+  case compare n 1 of
+    LT -> None
+    EQ -> Text (TextDoc len txt)
+    GT -> Text (TextDoc (n * len) (Text.replicate n txt))
+repeat n doc =
+  case compare n 1 of
+    LT -> None
+    EQ -> doc
+    GT -> runST do
+      dst <- Array.newArray n None
+      for_ [0 .. n - 1] \i ->
+        Array.writeArray dst i doc
+      docs <- Array.unsafeFreezeArray dst
+      pure (Join (JoinDoc (n * sizeofDoc doc) docs))
+
 -- Concatenation ---------------------------------------------------------------
 
 -- | TODO
@@ -120,25 +155,29 @@ vsep (x : xs) = x <!> vsep xs
 --
 -- @since 1.0.0
 parens :: Doc a -> Doc a
-parens x = text (Text.pack "(") <> x <> text (Text.pack ")")
+parens None = text (Text.pack "()")
+parens doc = text (Text.pack "(") <> doc <> text (Text.pack ")")
 {-# INLINE CONLIKE parens #-}
 
 -- | TODO
 --
 -- @since 1.0.0
 braces :: Doc a -> Doc a
-braces x = text (Text.pack "{") <> x <> text (Text.pack "}")
+braces None = text (Text.pack "{}")
+braces doc = text (Text.pack "{") <> doc <> text (Text.pack "}")
 {-# INLINE CONLIKE braces #-}
 
 -- | TODO
 --
 -- @since 1.0.0
 bracks :: Doc a -> Doc a
-bracks x = text (Text.pack "[") <> x <> text (Text.pack "]")
+bracks None = text (Text.pack "[]")
+bracks doc = text (Text.pack "[") <> doc <> text (Text.pack "]")
 {-# INLINE CONLIKE bracks #-}
 
 -- | TODO
 --
 -- @since 1.0.0
 angles :: Doc a -> Doc a
-angles x = text (Text.pack "<") <> x <> text (Text.pack ">")
+angles None = text (Text.pack "<>")
+angles doc = text (Text.pack "<") <> doc <> text (Text.pack ">")
