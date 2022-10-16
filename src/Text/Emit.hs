@@ -2,8 +2,11 @@
 {-# OPTIONS_HADDOCK show-extensions #-}
 
 module Text.Emit
-  ( module Text.Emit.Class,
-
+  ( -- * Emit 
+    Emit,
+    emit,
+    emitList, 
+  
     -- * Doc
     Doc,
     layout,
@@ -18,6 +21,7 @@ module Text.Emit
     (<+>),
     (<!>),
     line,
+    char,
     text,
     nest,
     metadata,
@@ -26,6 +30,7 @@ module Text.Emit
     repeat, 
 
     -- * Concatenation
+    sep,
     hsep,
     vsep,
 
@@ -48,7 +53,6 @@ import Prelude hiding (repeat)
 
 --------------------------------------------------------------------------------
 
-import Text.Emit.Class
 import Text.Emit.Doc
   ( Doc (Join, Line, Meta, Nest, None, Text),
     JoinDoc (JoinDoc),
@@ -60,6 +64,64 @@ import Text.Emit.Doc
   )
 import Text.Emit.Layout (layout, traverseMetadata)
 
+--------------------------------------------------------------------------------
+
+-- | TODO
+--
+-- @since 1.0.0
+class Emit a where
+  -- | TODO
+  --
+  -- @since 1.0.0
+  emit :: a -> Doc x
+
+  -- | TODO
+  --
+  -- @since 1.0.0
+  emitList :: [a] -> Doc x
+  emitList docs = bracks (sep (string ", ") (map emit docs))
+  {-# INLINE emitList #-}
+
+  {-# MINIMAL emit #-}
+
+-- | @since 1.0.0
+instance Emit Integer where
+  emit = showing 
+  {-# INLINE CONLIKE emit #-}
+
+-- | @since 1.0.0
+instance Emit Int where
+  emit = showing 
+  {-# INLINE CONLIKE emit #-}
+
+-- | @since 1.0.0
+instance Emit Double where
+  emit = showing 
+  {-# INLINE CONLIKE emit #-}
+
+-- | @since 1.0.0
+instance Emit Float where
+  emit = showing 
+  {-# INLINE CONLIKE emit #-}
+
+-- | @since 1.0.0
+instance Emit Char where
+  emit = showing
+  {-# INLINE CONLIKE emit #-}
+
+  emitList = string 
+  {-# INLINE CONLIKE emitList #-}
+
+-- | @since 1.0.0
+instance Emit a => Emit [a] where
+  emit = emitList 
+  {-# INLINE CONLIKE emit #-}
+
+-- | @since 1.0.0
+instance Emit Text where
+  emit = text
+  {-# INLINE CONLIKE emit #-}
+
 -- Primitives ------------------------------------------------------------------
 
 infixr 5 <+>, <!>
@@ -69,28 +131,42 @@ infixr 5 <+>, <!>
 -- @since 1.0.0
 (<+>) :: Doc a -> Doc a -> Doc a
 (<+>) x y = x <> text (Text.pack " ") <> y
-{-# INLINE CONLIKE (<+>) #-}
+{-# INLINE CONLIKE [0] (<+>) #-}
 
 -- | TODO
 --
 -- @since 1.0.0
 (<!>) :: Doc a -> Doc a -> Doc a
 (<!>) x y = x <> line <> y
-{-# INLINE CONLIKE (<!>) #-}
+{-# INLINE CONLIKE [0] (<!>) #-}
 
 -- | TODO
 --
 -- @since 1.0.0
 line :: Doc a
 line = Line (LineDoc 1)
-{-# INLINE CONLIKE line #-}
+{-# INLINE CONLIKE [0] line #-}
+
+-- | TODO
+--
+-- @since 1.0.0
+char :: Char -> Doc a
+char x = Text (TextDoc 1 (Text.singleton x))
+{-# INLINE CONLIKE [0] char #-}
+
+-- | TODO
+--
+-- @since 1.0.0
+string :: String -> Doc a
+string s = text (Text.pack s)
+{-# INLINE CONLIKE [0] string #-}
 
 -- | TODO
 --
 -- @since 1.0.0
 text :: Text -> Doc a
 text x = Text (TextDoc (Text.length x) x)
-{-# INLINE CONLIKE text #-}
+{-# INLINE CONLIKE [0] text #-}
 
 -- | TODO
 --
@@ -105,6 +181,13 @@ nest n x = Nest (NestDoc n x)
 metadata :: Doc a -> a -> Doc a
 metadata x i = Meta (MetaDoc i x)
 {-# INLINE CONLIKE metadata #-}
+
+-- | TODO
+--
+-- @since 1.0.0
+showing :: Show a => a -> Doc x 
+showing x = string (show x)
+{-# INLINE CONLIKE showing #-}
 
 -- Generation ------------------------------------------------------------------
 
@@ -130,6 +213,15 @@ repeat n doc =
       pure (Join (JoinDoc (n * sizeofDoc doc) docs))
 
 -- Concatenation ---------------------------------------------------------------
+
+-- | TODO
+--
+-- @since 1.0.0
+sep :: Doc a -> [Doc a] -> Doc a
+sep _ [] = None
+sep None xs = mconcat xs 
+sep s (doc : docs) = doc <> foldMap (s <>) docs 
+{-# INLINE sep #-}
 
 -- | TODO
 --

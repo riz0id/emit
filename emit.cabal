@@ -88,5 +88,4 @@ library
     Text.Emit.Stage
 
   other-modules:
-    Text.Emit.Class
     Text.Emit.Layout.Monad
