@@ -47,7 +47,7 @@ common common
     -dsuppress-uniques
 
   build-depends:
-    , base >= 4.15.1 && < 4.17
+    , base 
 
 library
   import:         common
@@ -57,7 +57,7 @@ library
     -- `-j3` is set (as opposed to `-j`) due to the small number of modules that 
     -- are exported by this package. This can sometimes help speed up compile 
     -- times by reducing thread contention.
-    -j3
+    -j
 
     -- This package does not benefit from higher specifying optimization levels
     -- such as `-O2`. 
@@ -69,20 +69,21 @@ library
     -- more iterations. 
     -fmax-simplifier-iterations=20
 
+    -ddump-rule-firings 
+    -ddump-rules
+    -ddump-rule-rewrites
+
   build-depends:
-    , ghc-prim         >= 0.7.0  && < 0.9
+    , ghc-prim
     , mtl
     , primitive
-    , prim-bool        >= 1.0.1  && < 1.1.0
-    , prim-char        >= 1.0.0  && < 1.1.0
-    , prim-int         >= 1.0.0  && < 1.1.0
-    , prim-ord         >= 1.0.0  && < 1.1.0
-    , template-haskell >= 2.17.0 && < 2.19
-    , text 
+    , template-haskell
+    , text             
 
   exposed-modules:
     Text.Emit
     Text.Emit.Doc
+    Text.Emit.Doc.Prim
     Text.Emit.Fuse
     Text.Emit.Layout
     Text.Emit.Stage

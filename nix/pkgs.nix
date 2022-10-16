@@ -1,13 +1,16 @@
 { ghc ? "ghc922" }:
 
 let
-  nixpkgs = import ./nixpkgs.nix { };
-in import nixpkgs {
+  nixpkgs = import <nixpkgs-unstable>; 
+in nixpkgs {
   config.packageOverrides = pkgs: 
     pkgs.lib.composeManyExtensions [  
       (import extensions/emit.nix {
         inherit ghc;
       })
+      (import extensions/emit-ast.nix {
+        inherit ghc;
+      }) 
       (import extensions/prim-char.nix {
         inherit ghc;
       })

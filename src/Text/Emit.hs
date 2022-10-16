@@ -2,11 +2,11 @@
 {-# OPTIONS_HADDOCK show-extensions #-}
 
 module Text.Emit
-  ( -- * Emit 
+  ( -- * Emit
     Emit,
     emit,
-    emitList, 
-  
+    emitList,
+
     -- * Doc
     Doc,
     layout,
@@ -20,16 +20,21 @@ module Text.Emit
     -- * Primitives
     (<+>),
     (<!>),
+    none,
     line,
     char,
+    string,
     text,
     nest,
+    append,
     metadata,
 
     -- * Generation
-    repeat, 
+    repeat,
 
     -- * Concatenation
+    concats,
+    concats',
     sep,
     hsep,
     vsep,
@@ -42,10 +47,7 @@ module Text.Emit
   )
 where
 
-import Control.Monad.ST (runST)
-
-import Data.Foldable (for_)
-import Data.Primitive.Array qualified as Array
+import Data.List qualified as List
 import Data.Text (Text)
 import Data.Text qualified as Text
 
@@ -54,14 +56,23 @@ import Prelude hiding (repeat)
 --------------------------------------------------------------------------------
 
 import Text.Emit.Doc
-  ( Doc (Join, Line, Meta, Nest, None, Text),
+  ( Doc (Join, None, Text),
     JoinDoc (JoinDoc),
-    LineDoc (LineDoc),
-    MetaDoc (MetaDoc),
-    NestDoc (NestDoc),
     TextDoc (TextDoc),
-    sizeofDoc,
+    append,
+    char,
+    line,
+    metadata,
+    nest,
+    none,
+    string,
+    text,
+    (<!>),
+    (<+>),
+    concats,
+    concats',
   )
+import Text.Emit.Doc qualified as Doc
 import Text.Emit.Layout (layout, traverseMetadata)
 
 --------------------------------------------------------------------------------
@@ -86,22 +97,22 @@ class Emit a where
 
 -- | @since 1.0.0
 instance Emit Integer where
-  emit = showing 
+  emit = showing
   {-# INLINE CONLIKE emit #-}
 
 -- | @since 1.0.0
 instance Emit Int where
-  emit = showing 
+  emit = showing
   {-# INLINE CONLIKE emit #-}
 
 -- | @since 1.0.0
 instance Emit Double where
-  emit = showing 
+  emit = showing
   {-# INLINE CONLIKE emit #-}
 
 -- | @since 1.0.0
 instance Emit Float where
-  emit = showing 
+  emit = showing
   {-# INLINE CONLIKE emit #-}
 
 -- | @since 1.0.0
@@ -109,12 +120,12 @@ instance Emit Char where
   emit = showing
   {-# INLINE CONLIKE emit #-}
 
-  emitList = string 
+  emitList = string
   {-# INLINE CONLIKE emitList #-}
 
 -- | @since 1.0.0
 instance Emit a => Emit [a] where
-  emit = emitList 
+  emit = emitList
   {-# INLINE CONLIKE emit #-}
 
 -- | @since 1.0.0
@@ -124,68 +135,10 @@ instance Emit Text where
 
 -- Primitives ------------------------------------------------------------------
 
-infixr 5 <+>, <!>
-
 -- | TODO
 --
 -- @since 1.0.0
-(<+>) :: Doc a -> Doc a -> Doc a
-(<+>) x y = x <> text (Text.pack " ") <> y
-{-# INLINE CONLIKE [0] (<+>) #-}
-
--- | TODO
---
--- @since 1.0.0
-(<!>) :: Doc a -> Doc a -> Doc a
-(<!>) x y = x <> line <> y
-{-# INLINE CONLIKE [0] (<!>) #-}
-
--- | TODO
---
--- @since 1.0.0
-line :: Doc a
-line = Line (LineDoc 1)
-{-# INLINE CONLIKE [0] line #-}
-
--- | TODO
---
--- @since 1.0.0
-char :: Char -> Doc a
-char x = Text (TextDoc 1 (Text.singleton x))
-{-# INLINE CONLIKE [0] char #-}
-
--- | TODO
---
--- @since 1.0.0
-string :: String -> Doc a
-string s = text (Text.pack s)
-{-# INLINE CONLIKE [0] string #-}
-
--- | TODO
---
--- @since 1.0.0
-text :: Text -> Doc a
-text x = Text (TextDoc (Text.length x) x)
-{-# INLINE CONLIKE [0] text #-}
-
--- | TODO
---
--- @since 1.0.0
-nest :: Int -> Doc a -> Doc a
-nest n x = Nest (NestDoc n x)
-{-# INLINE CONLIKE nest #-}
-
--- | TODO
---
--- @since 1.0.0
-metadata :: Doc a -> a -> Doc a
-metadata x i = Meta (MetaDoc i x)
-{-# INLINE CONLIKE metadata #-}
-
--- | TODO
---
--- @since 1.0.0
-showing :: Show a => a -> Doc x 
+showing :: Show a => a -> Doc x
 showing x = string (show x)
 {-# INLINE CONLIKE showing #-}
 
@@ -196,7 +149,7 @@ showing x = string (show x)
 -- @since 1.0.0
 repeat :: Int -> Doc a -> Doc a
 repeat _ None = None
-repeat n (Text (TextDoc len txt)) = 
+repeat n (Text (TextDoc len txt)) =
   case compare n 1 of
     LT -> None
     EQ -> Text (TextDoc len txt)
@@ -205,12 +158,7 @@ repeat n doc =
   case compare n 1 of
     LT -> None
     EQ -> doc
-    GT -> runST do
-      dst <- Array.newArray n None
-      for_ [0 .. n - 1] \i ->
-        Array.writeArray dst i doc
-      docs <- Array.unsafeFreezeArray dst
-      pure (Join (JoinDoc (n * sizeofDoc doc) docs))
+    GT -> Join (JoinDoc (n * Doc.sizeofDoc doc) (List.replicate n doc))
 
 -- Concatenation ---------------------------------------------------------------
 
@@ -219,8 +167,8 @@ repeat n doc =
 -- @since 1.0.0
 sep :: Doc a -> [Doc a] -> Doc a
 sep _ [] = None
-sep None xs = mconcat xs 
-sep s (doc : docs) = doc <> foldMap (s <>) docs 
+sep None xs = mconcat xs
+sep s (doc : docs) = doc <> foldMap (s <>) docs
 {-# INLINE sep #-}
 
 -- | TODO

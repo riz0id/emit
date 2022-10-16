@@ -20,7 +20,6 @@ import Control.Monad.Reader (ask, local)
 import Control.Monad.Writer (tell)
 
 import Data.Foldable (traverse_)
-import Data.Primitive.Array (Array)
 import Data.Text (Text)
 import Data.Text qualified as Text
 
@@ -74,7 +73,7 @@ traverseMetadata _ (Text x) = pure (Text x)
 traverseMetadata k (Join (JoinDoc _ docs)) =
   fmap (Join . rebuild) (traverse (traverseMetadata k) docs)
   where
-    rebuild :: Array (Doc a) -> JoinDoc a
+    rebuild :: [Doc a] -> JoinDoc a
     rebuild xs = JoinDoc (foldr ((+) . sizeofDoc) 0 xs) xs
 traverseMetadata k (Nest (NestDoc tabs doc)) = fmap (Nest . NestDoc tabs) (traverseMetadata k doc)
 traverseMetadata k (Meta (MetaDoc meta doc)) = k meta doc

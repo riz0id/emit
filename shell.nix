@@ -1,15 +1,14 @@
-{ ghc ? "ghc922" }:
+{ ghc ? "ghc942" }:
 
 let 
   pkgs = import ./default.nix { 
     inherit ghc; 
   };
 in pkgs.emit.env.overrideAttrs (self: {
-  buildInputs = self.buildInputs ++ [ 
-    pkgs.cabal-install
-    pkgs.clang
-    pkgs.fourmolu
-    pkgs.haskell-language-server
-    pkgs.llvm
-  ];
+  buildInputs = self.buildInputs ++ (with pkgs; [ 
+    # cabal-install
+    # fourmolu
+    # haskell-language-server
+    # hlint
+  ]);
 })
