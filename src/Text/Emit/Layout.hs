@@ -67,7 +67,7 @@ evalLayout mx = fst (runLayout 0 mx)
 -- | TODO
 --
 -- @since 1.0.0
-traverseMetadata :: Applicative f => (a -> Doc a -> f (Doc a)) -> Doc a -> f (Doc a)
+traverseMetadata :: Applicative f => (a -> Doc a -> f (Doc b)) -> Doc a -> f (Doc b)
 traverseMetadata _ None = pure None
 traverseMetadata _ (Line x) = pure (Line x)
 traverseMetadata _ (Text x) = pure (Text x)
