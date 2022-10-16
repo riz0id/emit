@@ -1,4 +1,5 @@
 {-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE DisambiguateRecordFields #-}
 {-# OPTIONS_HADDOCK show-extensions #-}
 
 module Text.Emit.Layout
@@ -8,6 +9,9 @@ module Text.Emit.Layout
     layout,
     runLayout,
     evalLayout,
+
+    -- * Traversal
+    traverseMetadata
   )
 where
 
@@ -55,6 +59,19 @@ runLayout i mx =
 evalLayout :: Layout () -> Text
 evalLayout mx = fst (runLayout 0 mx)
 {-# INLINE evalLayout #-}
+
+-- Traversal -------------------------------------------------------------------
+
+-- | TODO
+--
+-- @since 1.0.0
+traverseMetadata :: Applicative f => (a -> Doc a -> f (Doc a)) -> Doc a -> f (Doc a)
+traverseMetadata _ None = pure None
+traverseMetadata _ (Line x) = pure (Line x)
+traverseMetadata _ (Text x) = pure (Text x)
+traverseMetadata k (Join (JoinDoc size docs)) = fmap (Join . JoinDoc size) (traverse (traverseMetadata k) docs)
+traverseMetadata k (Nest (NestDoc tabs doc)) = fmap (Nest . NestDoc tabs) (traverseMetadata k doc)
+traverseMetadata k (Meta (MetaDoc meta doc)) = k meta doc 
 
 --------------------------------------------------------------------------------
 

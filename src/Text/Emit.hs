@@ -7,6 +7,12 @@ module Text.Emit
     Doc,
     layout,
 
+    -- * Traversal 
+    traverseMetadata, 
+
+    -- * Query
+    length,
+
     -- * Primitives
     (<+>),
     (<!>),
@@ -34,13 +40,13 @@ import Data.Text qualified as Text
 
 import Text.Emit.Class
 import Text.Emit.Doc
-  ( Doc (..),
+  ( Doc (Line, Nest, None, Text, Meta),
     LineDoc (LineDoc),
     MetaDoc (MetaDoc),
     NestDoc (NestDoc),
     TextDoc (TextDoc),
   )
-import Text.Emit.Layout (layout)
+import Text.Emit.Layout (layout, traverseMetadata)
 
 -- Primitives ------------------------------------------------------------------
 
